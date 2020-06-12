@@ -4,11 +4,11 @@ from datetime import datetime
 pygame.init()
 
 
-display_width = 1200
-display_height = 300
+display_width = 1600
+display_height = 480
 
 gameDisplay = pygame.display.set_mode((display_width, display_height))
-pygame.display.set_caption('A bit Racey')
+pygame.display.set_caption('What Time is it?')
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -26,19 +26,8 @@ img6 = pygame.image.load('C:/Users/jproc/Pictures/6.png')
 img7 = pygame.image.load('C:/Users/jproc/Pictures/7.png')
 img8 = pygame.image.load('C:/Users/jproc/Pictures/8.png')
 img9 = pygame.image.load('C:/Users/jproc/Pictures/9.png')
-imgList = ['img0','img1','img2','img3','img4','img5','img6','img7','img8','img9']
+imgList = [img0,img1,img2,img3,img4,img5,img6,img7,img8,img9]
 
-def hr10(img, x, y):
-    gameDisplay.blit(img, (x, y))
-
-def hr1(img, x, y):
-    gameDisplay.blit(img, (x, y))
-
-def mn10(img, x, y):
-    gameDisplay.blit(img, (x, y))
-
-def mn1(img, x, y):
-    gameDisplay.blit(img, (x, y))
 
 while not crashed:
     for event in pygame.event.get():
@@ -47,17 +36,26 @@ while not crashed:
 
     now = datetime.now() # current date and time
     time = now.strftime("%H:%M:%S")
+    hour = int(now.strftime("%H"))
+    hour = hour%10
+    minute = int(now.strftime("%M"))
+    minute = minute%10
     print("time:", time)
+    print(hour)
+    
+    
+   
 
     gameDisplay.fill(white)
-    hr10(img1, 0, 0)
-    hr1 (img7, 300, 0)
-    mn10 (img4, 600, 0)
-    mn1 (img6, 900, 0)
-        
+
+    gameDisplay.blit(imgList[1], (0, 0))
+    gameDisplay.blit(imgList[hour], (400, 0))
+    gameDisplay.blit(imgList[1], (800, 0))
+    gameDisplay.blit(imgList[minute], (1200, 0))
+
     pygame.display.update()
     clock.tick(60)
-    
+
 
 pygame.quit()
 quit()
