@@ -37,21 +37,20 @@ while not crashed:
     now = datetime.now() # current date and time
     time = now.strftime("%H:%M:%S")
     hour = int(now.strftime("%H"))
-    hour = hour%10
+    hour1 = hour%10
+    hour10 = int((hour - hour1)/10)
     minute = int(now.strftime("%M"))
-    minute = minute%10
+    minute1 = minute%10
+    minute10 = int((minute - minute1)/10)
     print("time:", time)
-    print(hour)
-    
-    
-   
+    print("h10:", hour10, " h1:", hour1, " m10:", minute10, " m1:", minute1)
 
     gameDisplay.fill(white)
 
-    gameDisplay.blit(imgList[1], (0, 0))
-    gameDisplay.blit(imgList[hour], (400, 0))
-    gameDisplay.blit(imgList[1], (800, 0))
-    gameDisplay.blit(imgList[minute], (1200, 0))
+    gameDisplay.blit(imgList[hour10], (0, 0))
+    gameDisplay.blit(imgList[hour1], (400, 0))
+    gameDisplay.blit(imgList[minute10], (800, 0))
+    gameDisplay.blit(imgList[minute1], (1200, 0))
 
     pygame.display.update()
     clock.tick(60)
