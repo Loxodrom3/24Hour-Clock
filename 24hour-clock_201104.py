@@ -1,14 +1,19 @@
 import time
 import board
+import busio
 import simpleio
 import neopixel
 import digitalio
 import math
-# for DS3231 Precision RTC
+# for DS3231 Precision RTC and OLED
 import adafruit_ds3231
 import adafruit_bus_device
 import adafruit_register
+import displayio
+# import terminalio
+import adafruit_displayio_ssd1306
 import busio
+# from adafruit_display_text import label
 
 # SetUp SunRise and SunSet
 sunRise =  441, 441, 441, 441, 441, 441, 440, 440, 440, 440, 440, 439, 439, 439, 438, 438, 437, 437, 436, 436, 435, 434, 434, 433, 432, 432, 431, 430, 429, 428, 427, 426, 425, 424, 423, 422, 421, 420, 419, 418, 417, 416, 414, 413, 412, 411, 409, 408, 407, 405, 404, 403, 401, 400, 398, 397, 396, 394, 393, 391, 390, 388, 387, 385, 384, 382, 380, 379, 437, 436, 434, 433, 431, 429, 428, 426, 425, 423, 421, 420, 418, 417, 415, 413, 412, 410, 409, 407, 405, 404, 402, 401, 399, 397, 396, 394, 393, 391, 390, 388, 387, 385, 384, 382, 381, 379, 378, 376, 375, 373, 372, 371, 369, 368, 366, 365, 364, 363, 361, 360, 359, 358, 356, 355, 354, 353, 352, 351, 350, 349, 348, 347, 346, 345, 344, 343, 342, 341, 341, 340, 339, 338, 338, 337, 336, 336, 335, 335, 334, 334, 333, 333, 333, 332, 332, 332, 332, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 332, 332, 332, 332, 333, 333, 333, 334, 334, 335, 335, 336, 336, 337, 337, 338, 338, 339, 340, 340, 341, 342, 342, 343, 344, 345, 345, 346, 347, 348, 349, 349, 350, 351, 352, 353, 354, 355, 356, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 413, 414, 415, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 446, 447, 448, 449, 450, 391, 392, 393, 395, 396, 397, 398, 399, 400, 401, 403, 404, 405, 406, 407, 408, 409, 410, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 428, 429, 430, 431, 432, 432, 433, 434, 434, 435, 436, 436, 437, 437, 438, 438, 439, 439, 439, 440, 440, 440, 440, 440, 440
@@ -19,10 +24,18 @@ monthDay = 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335  # use this arr
 toDay = 0
 currMin = 0
 currSec = 0
+tenth = 0
 
-base = 86400 # seconds in a day
+base = 86400  # seconds in a day
+
+# font = terminalio.FONT
+# displayio.release_displays()
 
 i2c = board.I2C()
+
+# display_bus = displayio.I2CDisplay(i2c, device_address=0x3c)
+# display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=128, height=32)
+# display_bus = displayio.I2CDisplay(i2c, device_address=0x3c, reset=board.D9)
 
 # SetUp HeartBeat
 ledHB = digitalio.DigitalInOut(board.D13)
@@ -33,7 +46,8 @@ ledHB.value = True
 LEDPin = board.A1
 numLED = 60
 ORDER = neopixel.GRBW
-ringLED = neopixel.NeoPixel(LEDPin, numLED, brightness=0.8, auto_write=False, pixel_order=ORDER)
+
+ringLED = neopixel.NeoPixel(LEDPin, numLED, brightness=0.4, auto_write=False, pixel_order=ORDER)
 
 rtc = adafruit_ds3231.DS3231(i2c)
 days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
@@ -41,7 +55,7 @@ days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sun
 # Set clock on RTC.  Only need to do if RT  drifts, or the after changing battery in RTC
 if False:   # change to True if you want to write the time!
     #                       year, mon, date, hour, min, sec, wday, yday, isdst
-    t = time.struct_time((2020,  11,   04,   00,  47,  00,    0,   -1,    -1))
+    t = time.struct_time((2020,  11,  12,   23,  23,  20,    0,   -1,    -1))
     rtc.datetime = t
     # you must set year, mon, date, hour, min, sec and weekday
     # yearday is not supported, isdst can be set but we don't do anything with it at this time
@@ -67,17 +81,17 @@ secGrn = 0
 secBlu = 0
 secWht = 0
 
-nowRed = 0
-nowGrn = 20
+nowRed = 30
+nowGrn = 0
 nowBlu = 0
-nowWht = 5
+nowWht = 0
 
 dayRed = 8
 dayGrn = 5
 dayBlu = 0
-dayWht = 5
+dayWht = 7
 
-nitRed = 15
+nitRed = 8
 nitGrn = 0
 nitBlu = 40
 nitWht = 0
@@ -115,8 +129,16 @@ while True:
         ringLED[nowPixel] = (nowRed, nowGrn, nowBlu, nowWht)
         ringLED.show()
 
-#    print(current.tm_hour, current.tm_min, current.tm_sec)
-    print(dayOfYear, hurOfDay, minOfDay, secOfDay, risePixel, setPixel, nowPixel) # , risePct, setPct)
+    if currSec != current.tm_sec:
+        currSec = current.tm_sec
+        tenth = 0
+
+    time_display = "{:d}:{:02d}:{:02d}.{:d}".format(current.tm_hour, current.tm_min, current.tm_sec, int(tenth *10))
+    print(time_display, sunRise[toDay], currMin, sunSet[toDay]) #, nowPixel)
+    tenth = tenth + 0.1
+
+    # print(current.tm_hour, current.tm_min, current.tm_sec, risePixel, setPixel, nowPixel)
+    # print(dayOfYear, hurOfDay, minOfDay, secOfDay, risePixel, setPixel, nowPixel) # , risePct, setPct)
 
     ledHB.value = not ledHB.value
-    time.sleep(0.2)
+    time.sleep(0.098)
