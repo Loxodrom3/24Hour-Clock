@@ -24,7 +24,8 @@ monthDay = 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335  # use this arr
 toDay = 0
 currMin = 0
 currSec = 0
-tenth = 0
+decSec = 0
+sleepTime = 0.073
 
 base = 86400  # seconds in a day
 
@@ -131,14 +132,14 @@ while True:
 
     if currSec != current.tm_sec:
         currSec = current.tm_sec
-        tenth = 0
+        decSec  = 0
 
-    time_display = "{:d}:{:02d}:{:02d}.{:d}".format(current.tm_hour, current.tm_min, current.tm_sec, int(tenth *10))
+    time_display = "{:d}:{:02d}:{:02d}.{:03d}".format(current.tm_hour, current.tm_min, current.tm_sec, int(decSec*1000)) 
     print(time_display, sunRise[toDay], currMin, sunSet[toDay]) #, nowPixel)
-    tenth = tenth + 0.1
+    decSec = decSec + sleepTime
 
     # print(current.tm_hour, current.tm_min, current.tm_sec, risePixel, setPixel, nowPixel)
     # print(dayOfYear, hurOfDay, minOfDay, secOfDay, risePixel, setPixel, nowPixel) # , risePct, setPct)
 
     ledHB.value = not ledHB.value
-    time.sleep(0.098)
+    time.sleep(sleepTime)
